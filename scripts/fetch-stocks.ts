@@ -89,9 +89,13 @@ async function main(): Promise<void> {
       const data = await fetchStockData(ticker)
       writeStockJson(data)
 
+      // Keep original ticker name as alias for local-language search (e.g. 삼성전자)
+      const alias = ticker.name !== data.name ? ticker.name : undefined
+
       searchIndex.push({
         symbol: data.symbol,
         name: data.name,
+        ...(alias && { alias }),
         exchange: data.exchange,
         sector: data.sector,
         industry: data.industry,

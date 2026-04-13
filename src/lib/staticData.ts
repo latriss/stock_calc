@@ -6,6 +6,7 @@ const DATA_BASE = `${import.meta.env.BASE_URL}data`
 interface SearchEntry {
   symbol: string
   name: string
+  alias?: string
   exchange: string
   sector: string | null
   industry: string | null
@@ -39,6 +40,7 @@ export async function searchStocks(query: string): Promise<StockSearchResult[]> 
   for (const entry of index) {
     const symbolLower = entry.symbol.toLowerCase()
     const nameLower = entry.name.toLowerCase()
+    const aliasLower = entry.alias?.toLowerCase() ?? ''
 
     // Symbol prefix match gets highest priority
     const isSymbolPrefix = symbolLower.startsWith(q)
@@ -46,11 +48,14 @@ export async function searchStocks(query: string): Promise<StockSearchResult[]> 
     const isExactSymbol = symbolLower === q
     // Name substring match
     const isNameMatch = nameLower.includes(q)
+    // Alias (local-language name) substring match
+    const isAliasMatch = aliasLower.includes(q)
 
-    if (isExactSymbol || isSymbolPrefix || isNameMatch) {
+    if (isExactSymbol || isSymbolPrefix || isNameMatch || isAliasMatch) {
       results.push({
         symbol: entry.symbol,
         name: entry.name,
+        ...(entry.alias && { alias: entry.alias }),
         exchange: entry.exchange,
         sector: entry.sector,
         industry: entry.industry,

@@ -7,6 +7,7 @@ export type MetricStatus = 'ok' | 'na'
 export interface StockSearchResult {
   symbol: string
   name: string
+  alias?: string
   exchange: string
   sector: string | null
   industry: string | null

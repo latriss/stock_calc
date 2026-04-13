@@ -250,7 +250,7 @@ function App() {
                   onClick={() => void handleSelectStock(stock)}
                 >
                   <span className="symbol">{stock.symbol}</span>
-                  <span className="name">{stock.name}</span>
+                  <span className="name">{stock.alias ? `${stock.alias} (${stock.name})` : stock.name}</span>
                   <span className="meta">{stock.exchange}</span>
                 </button>
               ))}

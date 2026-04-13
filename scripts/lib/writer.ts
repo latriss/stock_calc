@@ -19,6 +19,7 @@ export function writeStockJson(data: StockData): void {
 export interface SearchIndexEntry {
   symbol: string
   name: string
+  alias?: string
   exchange: string
   sector: string | null
   industry: string | null
