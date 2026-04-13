@@ -52,7 +52,7 @@ export const messages = {
     equity: '자본총계',
     debt: '총부채',
     cash: '현금성자산',
-    depreciationAmortization: '감가상각/상각',
+    ebitdaInput: 'EBITDA',
     sector: '섹터',
     industry: '업종',
     market: '시장',
@@ -60,7 +60,7 @@ export const messages = {
     dataAsOf: '데이터 기준일',
     notInUniverse: '이 종목은 사전 로드된 데이터에 포함되어 있지 않습니다. 직접 입력 모드를 이용해주세요.',
     copyToManual: '직접입력으로 편집',
-    manualMetricHelp: 'EPS는 순이익과 주식수로 계산됩니다. EBITDA는 영업이익과 감가상각/상각 입력값으로 계산됩니다.',
+    manualMetricHelp: 'EPS는 순이익과 주식수로 계산됩니다. EBITDA는 확인 가능한 경우에만 직접 입력하면 EV/EBITDA 계산에 반영됩니다.',
   },
   en: {
     appTitle: 'Annualized/TTM PER Calculator',
@@ -113,7 +113,7 @@ export const messages = {
     equity: 'Total Equity',
     debt: 'Total Debt',
     cash: 'Cash & Equivalents',
-    depreciationAmortization: 'Depreciation & Amortization',
+    ebitdaInput: 'EBITDA',
     sector: 'Sector',
     industry: 'Industry',
     market: 'Market',
@@ -121,7 +121,7 @@ export const messages = {
     dataAsOf: 'Data as of',
     notInUniverse: 'This stock is not in the pre-loaded dataset. Try manual input mode.',
     copyToManual: 'Edit in Manual Input',
-    manualMetricHelp: 'EPS is calculated from net income and shares. EBITDA is calculated from operating income and D&A inputs.',
+    manualMetricHelp: 'EPS is calculated from net income and shares. Enter EBITDA directly when available to enable EV/EBITDA.',
   },
 } as const
 

@@ -522,9 +522,7 @@ function App() {
                     <th>{t(language, 'revenue')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
                     <th>{t(language, 'operatingIncome')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
                     <th>{t(language, 'netIncome')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
-                    {manualState.advancedEnabled ? (
-                      <th>{t(language, 'depreciationAmortization')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
-                    ) : null}
+                    {manualState.advancedEnabled ? <th>{t(language, 'ebitdaInput')} ({manualState.market === 'KR' ? '억' : 'M'})</th> : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -562,12 +560,12 @@ function App() {
                       {manualState.advancedEnabled ? (
                         <td>
                           <input
-                            value={row.depreciationAmortization}
+                            value={row.ebitda}
                             inputMode="decimal"
                             onChange={(event) =>
                               updateManualQuarter(
                                 index,
-                                'depreciationAmortization',
+                                'ebitda',
                                 formatInputNumberString(event.target.value),
                               )
                             }

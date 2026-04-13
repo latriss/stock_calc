@@ -87,19 +87,19 @@ describe('manual input helpers', () => {
     expect(quarters[0].year).toBe(2025)
     expect(quarters[7].year).toBe(2026)
     expect(quarters[0].revenue).toBe('1,200')
-    expect(quarters[3].depreciationAmortization).toBe('20')
+    expect(quarters[3].ebitda).toBe('170')
     expect(quarters[4].revenue).toBe('')
-    expect(quarters[7].depreciationAmortization).toBe('')
+    expect(quarters[7].ebitda).toBe('')
   })
 
-  it('calculates EPS and EBITDA from manual inputs instead of storing them in the form', () => {
+  it('calculates EPS and keeps EBITDA as a direct manual input', () => {
     const state = createInitialManualState(2026)
     state.market = 'KR'
     state.shares = '1'
     state.advancedEnabled = true
     state.quarters[0].netIncome = '100'
     state.quarters[0].operatingIncome = '80'
-    state.quarters[0].depreciationAmortization = '20'
+    state.quarters[0].ebitda = '100'
 
     const [firstQuarter] = manualToQuarterRecords(state)
 

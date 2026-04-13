@@ -29,7 +29,7 @@ function createQuarterInputGrid(referenceYear: number): ManualInputState['quarte
         revenue: '',
         operatingIncome: '',
         netIncome: '',
-        depreciationAmortization: '',
+        ebitda: '',
       })
     }
   }
@@ -74,13 +74,7 @@ export function populateManualQuarters(
       revenue: scaleDown(source.revenue, multiplier),
       operatingIncome: scaleDown(source.operatingIncome, multiplier),
       netIncome: scaleDown(source.netIncome, multiplier),
-      depreciationAmortization:
-        source.ebitda !== null &&
-        source.operatingIncome !== null &&
-        Number.isFinite(source.ebitda) &&
-        Number.isFinite(source.operatingIncome)
-          ? scaleDown(source.ebitda - source.operatingIncome, multiplier)
-          : '',
+      ebitda: scaleDown(source.ebitda, multiplier),
     }
   })
 }
@@ -92,7 +86,7 @@ export function manualToQuarterRecords(state: ManualInputState): QuarterRecord[]
     const revenue = scaleUp(item.revenue, m)
     const operatingIncome = scaleUp(item.operatingIncome, m)
     const netIncome = scaleUp(item.netIncome, m)
-    const depreciationAmortization = scaleUp(item.depreciationAmortization, m)
+    const ebitda = scaleUp(item.ebitda, m)
 
     return {
       year: item.year,
@@ -102,10 +96,7 @@ export function manualToQuarterRecords(state: ManualInputState): QuarterRecord[]
       operatingIncome,
       netIncome,
       eps: shares !== null && shares > 0 && netIncome !== null ? netIncome / shares : null,
-      ebitda:
-        operatingIncome !== null && depreciationAmortization !== null
-          ? operatingIncome + depreciationAmortization
-          : null,
+      ebitda,
       currencyCode: null,
     }
   })
