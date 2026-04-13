@@ -90,6 +90,18 @@ function calculateNetIncomeRatio(quarter: ManualInputState['quarters'][number]):
   return netIncome / operatingIncome
 }
 
+function chooseEstimateRatio(sameQuarterRatio: number | undefined, averageRatio: number): number | null {
+  if (Number.isFinite(sameQuarterRatio)) {
+    return Math.min(sameQuarterRatio as number, averageRatio)
+  }
+
+  if (Number.isFinite(averageRatio)) {
+    return averageRatio
+  }
+
+  return null
+}
+
 export function estimateMissingNetIncome(
   quarters: ManualInputState['quarters'],
 ): ManualInputState['quarters'] {
@@ -125,8 +137,8 @@ export function estimateMissingNetIncome(
       .filter((entry) => entry.index !== index && entry.quarter === quarter.quarter)
       .sort((a, b) => Math.abs(a.year - quarter.year) - Math.abs(b.year - quarter.year))[0]?.ratio
 
-    const ratio = sameQuarterRatio ?? averageRatio
-    if (!Number.isFinite(ratio)) {
+    const ratio = chooseEstimateRatio(sameQuarterRatio, averageRatio)
+    if (ratio === null) {
       return quarter
     }
 

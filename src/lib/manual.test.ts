@@ -112,7 +112,7 @@ describe('manual input helpers', () => {
     expect(firstQuarter.ebitda).toBe(10_000_000_000)
   })
 
-  it('estimates only blank net income rows using same-quarter history first', () => {
+  it('uses the lower value between same-quarter ratio and overall average ratio', () => {
     const state = createInitialManualState(2026)
     state.quarters[0].operatingIncome = '100'
     state.quarters[0].netIncome = '80'
@@ -126,8 +126,8 @@ describe('manual input helpers', () => {
     const estimated = estimateMissingNetIncome(state.quarters)
 
     expect(estimated[0].netIncome).toBe('80')
-    expect(estimated[4].netIncome).toBe('160')
-    expect(estimated[5].netIncome).toBe('120')
+    expect(estimated[4].netIncome).toBe('130')
+    expect(estimated[5].netIncome).toBe('104')
     expect(estimated[6].netIncome).toBe('40')
   })
 
