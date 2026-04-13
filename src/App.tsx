@@ -13,6 +13,7 @@ import { t } from './i18n'
 import { buildQuarterGrid, calculateCombinedMetrics } from './lib/calculations'
 import {
   formatCurrency,
+  formatDataTimestamp,
   formatDateLabel,
   formatInputNumberString,
   formatLargeValue,
@@ -64,7 +65,7 @@ function App() {
   useEffect(() => {
     void loadMeta().then((meta) => {
       if (meta?.updatedAt) {
-        setDataUpdatedAt(meta.updatedAt.slice(0, 10))
+        setDataUpdatedAt(meta.updatedAt)
       }
     })
   }, [])
@@ -225,7 +226,7 @@ function App() {
       <header className="app-header">
         <div>
           <h1>{t(language, 'appTitle')}</h1>
-          <p>{t(language, 'appSubtitle')}{dataUpdatedAt ? ` (${t(language, 'dataAsOf')}: ${dataUpdatedAt})` : ''}</p>
+          <p>{t(language, 'appSubtitle')}</p>
         </div>
         <div className="language-switch" role="group" aria-label={t(language, 'languageLabel')}>
           <button
@@ -267,6 +268,12 @@ function App() {
       {mode === 'search' ? (
         <section className="content-stack">
           <div className="search-card">
+            <div className="search-info">
+              <p>{t(language, 'searchUniverseNotice')}</p>
+              <p>
+                {t(language, 'dataAsOf')} : {formatDataTimestamp(dataUpdatedAt, language)}
+              </p>
+            </div>
             <div className="search-row">
               <input
                 value={query}

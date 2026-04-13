@@ -124,6 +124,24 @@ export function formatDateLabel(dateString: string, language: Language): string 
   }).format(d)
 }
 
+export function formatDataTimestamp(value: string | null | undefined, language: Language): string {
+  if (!value) {
+    return language === 'ko' ? '미확인' : 'Unknown'
+  }
+
+  const matched = value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/)
+  if (!matched) {
+    return value
+  }
+
+  const [, year, month, day, hour, minute] = matched
+  if (language === 'ko') {
+    return `${year}년 ${month}월 ${day}일 ${hour}:${minute}`
+  }
+
+  return `${year}-${month}-${day} ${hour}:${minute}`
+}
+
 export function inferMarketFromSymbol(symbol: string): Market {
   const upper = symbol.toUpperCase()
   if (upper.endsWith('.KS') || upper.endsWith('.KQ')) {
