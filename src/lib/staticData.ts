@@ -18,7 +18,9 @@ let cachedIndex: SearchEntry[] | null = null
 async function loadSearchIndex(): Promise<SearchEntry[]> {
   if (cachedIndex) return cachedIndex
 
-  const response = await fetch(`${DATA_BASE}/search-index.json`)
+  const response = await fetch(`${DATA_BASE}/search-index.json`, {
+    cache: 'no-store',
+  })
   if (!response.ok) {
     throw new Error('Failed to load search index')
   }
@@ -83,7 +85,9 @@ export async function searchStocks(query: string): Promise<StockSearchResult[]> 
  */
 export async function fetchStockDetail(stock: StockSearchResult): Promise<StockDetailData> {
   const url = `${DATA_BASE}/stocks/${encodeURIComponent(stock.symbol)}.json`
-  const response = await fetch(url)
+  const response = await fetch(url, {
+    cache: 'no-store',
+  })
 
   if (!response.ok) {
     throw new Error(`notInUniverse:${stock.symbol}`)
@@ -105,7 +109,9 @@ export async function loadMeta(): Promise<DataMeta | null> {
   if (cachedMeta) return cachedMeta
 
   try {
-    const response = await fetch(`${DATA_BASE}/meta.json`)
+    const response = await fetch(`${DATA_BASE}/meta.json`, {
+      cache: 'no-store',
+    })
     if (!response.ok) return null
     cachedMeta = (await response.json()) as DataMeta
     return cachedMeta
