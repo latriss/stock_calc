@@ -151,6 +151,38 @@ function App() {
     })
   }
 
+  function copyToManualInput(): void {
+    if (!stockDetail) return
+
+    const numToStr = (v: number | null | undefined): string =>
+      v !== null && v !== undefined && Number.isFinite(v) ? String(v) : ''
+
+    const vi = stockDetail.valuationInputs
+    const recentQuarters = stockDetail.quarters.slice(-8)
+
+    const quarters = recentQuarters.map((q) => ({
+      year: q.year,
+      quarter: q.quarter as 1 | 2 | 3 | 4,
+      revenue: numToStr(q.revenue),
+      operatingIncome: numToStr(q.operatingIncome),
+      netIncome: numToStr(q.netIncome),
+      eps: numToStr(q.eps),
+      ebitda: numToStr(q.ebitda),
+    }))
+
+    setManualState({
+      price: numToStr(vi.price),
+      marketCap: numToStr(vi.marketCap),
+      shares: numToStr(vi.shares),
+      equity: numToStr(vi.equity),
+      debt: numToStr(vi.debt),
+      cash: numToStr(vi.cash),
+      advancedEnabled: true,
+      quarters,
+    })
+    setMode('manual')
+  }
+
   function handleManualCalculate(): void {
     const quarters = manualToQuarterRecords(manualState)
     const valuations = manualToValuationInputs(manualState)
@@ -369,7 +401,12 @@ function App() {
               </article>
 
               <article className="panel">
-                <h2>{t(language, 'quarterTitle')}</h2>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h2>{t(language, 'quarterTitle')}</h2>
+                  <button type="button" className="link-button" onClick={copyToManualInput}>
+                    {t(language, 'copyToManual')} &rsaquo;
+                  </button>
+                </div>
                 {stockQuarterGrid.length === 0 ? (
                   <p className="hint-text">{t(language, 'noQuarterData')}</p>
                 ) : (

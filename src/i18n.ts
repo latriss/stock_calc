@@ -57,6 +57,7 @@ export const messages = {
     unknown: '미확인',
     dataAsOf: '데이터 기준일',
     notInUniverse: '이 종목은 사전 로드된 데이터에 포함되어 있지 않습니다. 직접 입력 모드를 이용해주세요.',
+    copyToManual: '직접입력으로 편집',
   },
   en: {
     appTitle: 'Mobile Stock Finder + Valuation Calculator',
@@ -114,6 +115,7 @@ export const messages = {
     unknown: 'Unknown',
     dataAsOf: 'Data as of',
     notInUniverse: 'This stock is not in the pre-loaded dataset. Try manual input mode.',
+    copyToManual: 'Edit in Manual Input',
   },
 } as const
 
