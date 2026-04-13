@@ -14,6 +14,7 @@ import { buildQuarterGrid, calculateCombinedMetrics } from './lib/calculations'
 import {
   formatCurrency,
   formatDateLabel,
+  formatInputNumberString,
   formatLargeValue,
   formatNumber,
   formatPlain,
@@ -163,12 +164,14 @@ function App() {
     const divisor = market === 'KR' ? 1_0000_0000 : market === 'US' ? 1_000_000 : 1
 
     const numToStr = (v: number | null | undefined): string =>
-      v !== null && v !== undefined && Number.isFinite(v) ? String(v) : ''
+      v !== null && v !== undefined && Number.isFinite(v)
+        ? formatInputNumberString(String(v))
+        : ''
 
     /** Convert large monetary value to display unit (억 or M) */
     const toUnit = (v: number | null | undefined): string =>
       v !== null && v !== undefined && Number.isFinite(v)
-        ? String(Math.round(v / divisor))
+        ? formatInputNumberString(String(Math.round(v / divisor)))
         : ''
 
     const vi = stockDetail.valuationInputs
@@ -496,6 +499,7 @@ function App() {
                     onChange={(value) => updateManualField('cash', value)}
                   />
                 </div>
+                <p className="hint-text">{t(language, 'manualMetricHelp')}</p>
               </>
             ) : null}
           </article>
@@ -511,8 +515,9 @@ function App() {
                     <th>{t(language, 'revenue')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
                     <th>{t(language, 'operatingIncome')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
                     <th>{t(language, 'netIncome')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
-                    <th>{t(language, 'eps')}</th>
-                    <th>EBITDA ({manualState.market === 'KR' ? '억' : 'M'})</th>
+                    {manualState.advancedEnabled ? (
+                      <th>{t(language, 'depreciationAmortization')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
+                    ) : null}
                   </tr>
                 </thead>
                 <tbody>
@@ -523,35 +528,45 @@ function App() {
                       <td>
                         <input
                           value={row.revenue}
-                          onChange={(event) => updateManualQuarter(index, 'revenue', event.target.value)}
+                          inputMode="decimal"
+                          onChange={(event) =>
+                            updateManualQuarter(index, 'revenue', formatInputNumberString(event.target.value))
+                          }
                         />
                       </td>
                       <td>
                         <input
                           value={row.operatingIncome}
-                          onChange={(event) => updateManualQuarter(index, 'operatingIncome', event.target.value)}
+                          inputMode="decimal"
+                          onChange={(event) =>
+                            updateManualQuarter(index, 'operatingIncome', formatInputNumberString(event.target.value))
+                          }
                         />
                       </td>
                       <td>
                         <input
                           value={row.netIncome}
-                          onChange={(event) => updateManualQuarter(index, 'netIncome', event.target.value)}
+                          inputMode="decimal"
+                          onChange={(event) =>
+                            updateManualQuarter(index, 'netIncome', formatInputNumberString(event.target.value))
+                          }
                         />
                       </td>
-                      <td>
-                        <input
-                          value={row.eps}
-                          disabled={!manualState.advancedEnabled}
-                          onChange={(event) => updateManualQuarter(index, 'eps', event.target.value)}
-                        />
-                      </td>
-                      <td>
-                        <input
-                          value={row.ebitda}
-                          disabled={!manualState.advancedEnabled}
-                          onChange={(event) => updateManualQuarter(index, 'ebitda', event.target.value)}
-                        />
-                      </td>
+                      {manualState.advancedEnabled ? (
+                        <td>
+                          <input
+                            value={row.depreciationAmortization}
+                            inputMode="decimal"
+                            onChange={(event) =>
+                              updateManualQuarter(
+                                index,
+                                'depreciationAmortization',
+                                formatInputNumberString(event.target.value),
+                              )
+                            }
+                          />
+                        </td>
+                      ) : null}
                     </tr>
                   ))}
                 </tbody>
@@ -708,7 +723,8 @@ function LabeledInput({ label, value, onChange }: LabeledInputProps) {
       <span>{label}</span>
       <input
         value={value}
-        onChange={(event) => onChange(event.target.value)}
+        inputMode="decimal"
+        onChange={(event) => onChange(formatInputNumberString(event.target.value))}
       />
     </label>
   )

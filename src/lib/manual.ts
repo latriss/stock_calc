@@ -1,5 +1,5 @@
 ﻿import type { ManualInputState, Market, QuarterRecord, ValuationInputs } from '../types'
-import { parseOptionalNumber } from './formatters'
+import { formatInputNumberString, parseOptionalNumber } from './formatters'
 
 /** Multiplier to convert display unit back to raw value */
 function unitMultiplier(market: Market): number {
@@ -13,7 +13,7 @@ function scaleUp(input: string, multiplier: number): number | null {
 
 function scaleDown(value: number | null | undefined, multiplier: number): string {
   return value !== null && value !== undefined && Number.isFinite(value)
-    ? String(Math.round(value / multiplier))
+    ? formatInputNumberString(String(Math.round(value / multiplier)))
     : ''
 }
 
@@ -29,8 +29,7 @@ function createQuarterInputGrid(referenceYear: number): ManualInputState['quarte
         revenue: '',
         operatingIncome: '',
         netIncome: '',
-        eps: '',
-        ebitda: '',
+        depreciationAmortization: '',
       })
     }
   }
@@ -75,25 +74,41 @@ export function populateManualQuarters(
       revenue: scaleDown(source.revenue, multiplier),
       operatingIncome: scaleDown(source.operatingIncome, multiplier),
       netIncome: scaleDown(source.netIncome, multiplier),
-      eps: source.eps !== null && Number.isFinite(source.eps) ? String(source.eps) : '',
-      ebitda: scaleDown(source.ebitda, multiplier),
+      depreciationAmortization:
+        source.ebitda !== null &&
+        source.operatingIncome !== null &&
+        Number.isFinite(source.ebitda) &&
+        Number.isFinite(source.operatingIncome)
+          ? scaleDown(source.ebitda - source.operatingIncome, multiplier)
+          : '',
     }
   })
 }
 
 export function manualToQuarterRecords(state: ManualInputState): QuarterRecord[] {
   const m = unitMultiplier(state.market)
-  return state.quarters.map((item) => ({
-    year: item.year,
-    quarter: item.quarter,
-    asOfDate: `${item.year}-${String(item.quarter * 3).padStart(2, '0')}-30`,
-    revenue: scaleUp(item.revenue, m),
-    operatingIncome: scaleUp(item.operatingIncome, m),
-    netIncome: scaleUp(item.netIncome, m),
-    eps: parseOptionalNumber(item.eps),
-    ebitda: scaleUp(item.ebitda, m),
-    currencyCode: null,
-  }))
+  const shares = scaleUp(state.shares, m)
+  return state.quarters.map((item) => {
+    const revenue = scaleUp(item.revenue, m)
+    const operatingIncome = scaleUp(item.operatingIncome, m)
+    const netIncome = scaleUp(item.netIncome, m)
+    const depreciationAmortization = scaleUp(item.depreciationAmortization, m)
+
+    return {
+      year: item.year,
+      quarter: item.quarter,
+      asOfDate: `${item.year}-${String(item.quarter * 3).padStart(2, '0')}-30`,
+      revenue,
+      operatingIncome,
+      netIncome,
+      eps: shares !== null && shares > 0 && netIncome !== null ? netIncome / shares : null,
+      ebitda:
+        operatingIncome !== null && depreciationAmortization !== null
+          ? operatingIncome + depreciationAmortization
+          : null,
+      currencyCode: null,
+    }
+  })
 }
 
 export function manualToValuationInputs(state: ManualInputState): ValuationInputs {

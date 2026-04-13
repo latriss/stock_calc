@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { QuarterRecord } from '../types'
-import { createInitialManualState, populateManualQuarters } from './manual'
+import { createInitialManualState, manualToQuarterRecords, populateManualQuarters } from './manual'
 
 const sourceQuarters: QuarterRecord[] = [
   {
@@ -86,9 +86,24 @@ describe('manual input helpers', () => {
     expect(quarters).toHaveLength(8)
     expect(quarters[0].year).toBe(2025)
     expect(quarters[7].year).toBe(2026)
-    expect(quarters[0].revenue).toBe('1200')
-    expect(quarters[3].eps).toBe('1500')
+    expect(quarters[0].revenue).toBe('1,200')
+    expect(quarters[3].depreciationAmortization).toBe('20')
     expect(quarters[4].revenue).toBe('')
-    expect(quarters[7].ebitda).toBe('')
+    expect(quarters[7].depreciationAmortization).toBe('')
+  })
+
+  it('calculates EPS and EBITDA from manual inputs instead of storing them in the form', () => {
+    const state = createInitialManualState(2026)
+    state.market = 'KR'
+    state.shares = '1'
+    state.advancedEnabled = true
+    state.quarters[0].netIncome = '100'
+    state.quarters[0].operatingIncome = '80'
+    state.quarters[0].depreciationAmortization = '20'
+
+    const [firstQuarter] = manualToQuarterRecords(state)
+
+    expect(firstQuarter.eps).toBe(100)
+    expect(firstQuarter.ebitda).toBe(10_000_000_000)
   })
 })

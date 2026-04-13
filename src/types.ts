@@ -83,8 +83,6 @@ export interface ManualInputState {
     revenue: string
     operatingIncome: string
     netIncome: string
-    eps: string
-    ebitda: string
+    depreciationAmortization: string
   }>
 }
-

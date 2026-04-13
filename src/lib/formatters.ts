@@ -74,6 +74,43 @@ export function formatLargeValue(
   return `${formatNumber(millions, language, 0)}M`
 }
 
+export function formatInputNumberString(input: string): string {
+  if (!input) {
+    return ''
+  }
+
+  let normalized = input.replace(/,/g, '').replace(/[^\d.-]/g, '')
+  if (!normalized) {
+    return ''
+  }
+
+  normalized = normalized.replace(/(?!^)-/g, '')
+  const dotIndex = normalized.indexOf('.')
+  if (dotIndex !== -1) {
+    normalized =
+      normalized.slice(0, dotIndex + 1) +
+      normalized.slice(dotIndex + 1).replace(/\./g, '')
+  }
+
+  const isNegative = normalized.startsWith('-')
+  const unsigned = isNegative ? normalized.slice(1) : normalized
+  const hasDot = unsigned.includes('.')
+  const [intPartRaw = '', fractionPart = ''] = unsigned.split('.')
+
+  if (intPartRaw === '' && !hasDot) {
+    return isNegative ? '-' : ''
+  }
+
+  const groupedInt = intPartRaw.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
+  const sign = isNegative ? '-' : ''
+
+  if (!hasDot) {
+    return `${sign}${groupedInt}`
+  }
+
+  return `${sign}${groupedInt}.${fractionPart}`
+}
+
 export function formatDateLabel(dateString: string, language: Language): string {
   const d = new Date(dateString)
   if (Number.isNaN(d.getTime())) {
@@ -118,4 +155,3 @@ export function parseOptionalNumber(input: string): number | null {
   }
   return value
 }
-
