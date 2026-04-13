@@ -45,6 +45,8 @@ type ManualOutput = {
   quarters: QuarterRecord[]
 }
 
+const GUIDE_URL = 'https://blog.naver.com/latriss/224251323952'
+
 function App() {
   const [language, setLanguage] = useState<Language>('ko')
   const [mode, setMode] = useState<Mode>('search')
@@ -234,7 +236,12 @@ function App() {
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <h1>{t(language, 'appTitle')}</h1>
+          <div className="title-row">
+            <h1>{t(language, 'appTitle')}</h1>
+            <a className="guide-link" href={GUIDE_URL} target="_blank" rel="noreferrer">
+              {t(language, 'guideButton')}
+            </a>
+          </div>
           <p>{t(language, 'appSubtitle')}</p>
         </div>
         <div className="language-switch" role="group" aria-label={t(language, 'languageLabel')}>

@@ -3,6 +3,7 @@
 export const messages = {
   ko: {
     appTitle: '연환산/TTM 방식의 PER 계산기',
+    guideButton: '사용가이드(Naver Blog)',
     appSubtitle: '검색 모드와 직접 입력 모드를 지원하며 연환산/TTM 지표를 함께 계산합니다.',
     tabSearch: '조회 모드',
     tabManual: '직접 입력',
@@ -66,6 +67,7 @@ export const messages = {
   },
   en: {
     appTitle: 'Annualized/TTM PER Calculator',
+    guideButton: 'User Guide (Naver Blog)',
     appSubtitle: 'Search mode and manual mode with annualized/TTM valuation outputs.',
     tabSearch: 'Search Mode',
     tabManual: 'Manual Input',
