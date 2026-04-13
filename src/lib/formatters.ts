@@ -50,6 +50,30 @@ export function formatPlain(value: number | null | undefined, language: Language
   }).format(value)
 }
 
+/**
+ * Format large monetary values in a human-readable scale.
+ * KR market: 억 (1억 = 100,000,000)
+ * US market: M (millions)
+ */
+export function formatLargeValue(
+  value: number | null | undefined,
+  market: Market,
+  language: Language,
+): string {
+  if (value === null || value === undefined || Number.isNaN(value)) {
+    return 'N/A'
+  }
+
+  if (market === 'KR') {
+    const eok = value / 1_0000_0000
+    return `${formatNumber(eok, language, 0)}억`
+  }
+
+  // US & others: millions
+  const millions = value / 1_000_000
+  return `${formatNumber(millions, language, 0)}M`
+}
+
 export function formatDateLabel(dateString: string, language: Language): string {
   const d = new Date(dateString)
   if (Number.isNaN(d.getTime())) {

@@ -14,6 +14,7 @@ import { buildQuarterGrid, calculateCombinedMetrics } from './lib/calculations'
 import {
   formatCurrency,
   formatDateLabel,
+  formatLargeValue,
   formatNumber,
   formatPlain,
 } from './lib/formatters'
@@ -23,6 +24,7 @@ import type {
   CalculatedMetrics,
   Language,
   ManualInputState,
+  Market,
   QuarterRecord,
   StockDetailData,
   StockSearchResult,
@@ -371,7 +373,7 @@ function App() {
                 {stockQuarterGrid.length === 0 ? (
                   <p className="hint-text">{t(language, 'noQuarterData')}</p>
                 ) : (
-                  <QuarterTable rows={stockQuarterGrid} language={language} currency={stockDetail.currency} />
+                  <QuarterTable rows={stockQuarterGrid} language={language} currency={stockDetail.currency} market={stockDetail.market} />
                 )}
               </article>
             </>
@@ -576,7 +578,7 @@ function App() {
 
               <article className="panel">
                 <h2>{t(language, 'quarterTitle')}</h2>
-                <QuarterTable rows={manualOutput.quarters} language={language} currency={null} />
+                <QuarterTable rows={manualOutput.quarters} language={language} currency={null} market={selectedStock?.market ?? 'US'} />
               </article>
             </>
           ) : null}
@@ -604,9 +606,10 @@ type QuarterTableProps = {
   rows: QuarterRecord[]
   language: Language
   currency: string | null
+  market: Market
 }
 
-function QuarterTable({ rows, language, currency }: QuarterTableProps) {
+function QuarterTable({ rows, language, market }: QuarterTableProps) {
   return (
     <div className="table-wrap">
       <table>
@@ -614,9 +617,9 @@ function QuarterTable({ rows, language, currency }: QuarterTableProps) {
           <tr>
             <th>{t(language, 'year')}</th>
             <th>{t(language, 'quarter')}</th>
-            <th>{t(language, 'revenue')}</th>
-            <th>{t(language, 'operatingIncome')}</th>
-            <th>{t(language, 'netIncome')}</th>
+            <th>{t(language, 'revenue')} ({market === 'KR' ? '억' : 'M'})</th>
+            <th>{t(language, 'operatingIncome')} ({market === 'KR' ? '억' : 'M'})</th>
+            <th>{t(language, 'netIncome')} ({market === 'KR' ? '억' : 'M'})</th>
           </tr>
         </thead>
         <tbody>
@@ -624,9 +627,9 @@ function QuarterTable({ rows, language, currency }: QuarterTableProps) {
             <tr key={`${record.year}-${record.quarter}`}>
               <td>{record.year}</td>
               <td>Q{record.quarter}</td>
-              <td>{formatCurrency(record.revenue, currency, language)}</td>
-              <td>{formatCurrency(record.operatingIncome, currency, language)}</td>
-              <td>{formatCurrency(record.netIncome, currency, language)}</td>
+              <td>{formatLargeValue(record.revenue, market, language)}</td>
+              <td>{formatLargeValue(record.operatingIncome, market, language)}</td>
+              <td>{formatLargeValue(record.netIncome, market, language)}</td>
             </tr>
           ))}
         </tbody>
