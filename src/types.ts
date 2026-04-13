@@ -76,6 +76,7 @@ export interface ManualInputState {
   debt: string
   cash: string
   advancedEnabled: boolean
+  market: Market
   quarters: Array<{
     year: number
     quarter: 1 | 2 | 3 | 4

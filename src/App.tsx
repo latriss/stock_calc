@@ -154,8 +154,17 @@ function App() {
   function copyToManualInput(): void {
     if (!stockDetail) return
 
+    const market = stockDetail.market
+    const divisor = market === 'KR' ? 1_0000_0000 : market === 'US' ? 1_000_000 : 1
+
     const numToStr = (v: number | null | undefined): string =>
       v !== null && v !== undefined && Number.isFinite(v) ? String(v) : ''
+
+    /** Convert large monetary value to display unit (억 or M) */
+    const toUnit = (v: number | null | undefined): string =>
+      v !== null && v !== undefined && Number.isFinite(v)
+        ? String(Math.round(v / divisor))
+        : ''
 
     const vi = stockDetail.valuationInputs
     const recentQuarters = stockDetail.quarters.slice(-8)
@@ -163,21 +172,22 @@ function App() {
     const quarters = recentQuarters.map((q) => ({
       year: q.year,
       quarter: q.quarter as 1 | 2 | 3 | 4,
-      revenue: numToStr(q.revenue),
-      operatingIncome: numToStr(q.operatingIncome),
-      netIncome: numToStr(q.netIncome),
+      revenue: toUnit(q.revenue),
+      operatingIncome: toUnit(q.operatingIncome),
+      netIncome: toUnit(q.netIncome),
       eps: numToStr(q.eps),
-      ebitda: numToStr(q.ebitda),
+      ebitda: toUnit(q.ebitda),
     }))
 
     setManualState({
       price: numToStr(vi.price),
-      marketCap: numToStr(vi.marketCap),
-      shares: numToStr(vi.shares),
-      equity: numToStr(vi.equity),
-      debt: numToStr(vi.debt),
-      cash: numToStr(vi.cash),
+      marketCap: toUnit(vi.marketCap),
+      shares: toUnit(vi.shares),
+      equity: toUnit(vi.equity),
+      debt: toUnit(vi.debt),
+      cash: toUnit(vi.cash),
       advancedEnabled: true,
+      market,
       quarters,
     })
     setMode('manual')
@@ -423,7 +433,20 @@ function App() {
       ) : (
         <section className="content-stack">
           <article className="panel">
-            <h2>{t(language, 'sectionManualPrice')}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2>{t(language, 'sectionManualPrice')}</h2>
+              <label style={{ fontSize: '0.82rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                {t(language, 'market')}
+                <select
+                  value={manualState.market}
+                  onChange={(e) => setManualState((prev) => ({ ...prev, market: e.target.value as Market }))}
+                  style={{ padding: '0.3rem 0.4rem', borderRadius: '0.5rem', border: '1px solid #c7d7d2' }}
+                >
+                  <option value="KR">KR (억)</option>
+                  <option value="US">US (M)</option>
+                </select>
+              </label>
+            </div>
             <div className="manual-grid two-col">
               <LabeledInput
                 label={t(language, 'currentPrice')}
@@ -431,7 +454,7 @@ function App() {
                 onChange={(value) => updateManualField('price', value)}
               />
               <LabeledInput
-                label={t(language, 'marketCap')}
+                label={`${t(language, 'marketCap')} (${manualState.market === 'KR' ? '억' : 'M'})`}
                 value={manualState.marketCap}
                 onChange={(value) => updateManualField('marketCap', value)}
               />
@@ -455,22 +478,22 @@ function App() {
                 <p className="hint-text">{t(language, 'advancedHelp')}</p>
                 <div className="manual-grid three-col">
                   <LabeledInput
-                    label={t(language, 'shares')}
+                    label={`${t(language, 'shares')} (${manualState.market === 'KR' ? '억' : 'M'})`}
                     value={manualState.shares}
                     onChange={(value) => updateManualField('shares', value)}
                   />
                   <LabeledInput
-                    label={t(language, 'equity')}
+                    label={`${t(language, 'equity')} (${manualState.market === 'KR' ? '억' : 'M'})`}
                     value={manualState.equity}
                     onChange={(value) => updateManualField('equity', value)}
                   />
                   <LabeledInput
-                    label={t(language, 'debt')}
+                    label={`${t(language, 'debt')} (${manualState.market === 'KR' ? '억' : 'M'})`}
                     value={manualState.debt}
                     onChange={(value) => updateManualField('debt', value)}
                   />
                   <LabeledInput
-                    label={t(language, 'cash')}
+                    label={`${t(language, 'cash')} (${manualState.market === 'KR' ? '억' : 'M'})`}
                     value={manualState.cash}
                     onChange={(value) => updateManualField('cash', value)}
                   />
@@ -487,11 +510,11 @@ function App() {
                   <tr>
                     <th>{t(language, 'year')}</th>
                     <th>{t(language, 'quarter')}</th>
-                    <th>{t(language, 'revenue')}</th>
-                    <th>{t(language, 'operatingIncome')}</th>
-                    <th>{t(language, 'netIncome')}</th>
+                    <th>{t(language, 'revenue')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
+                    <th>{t(language, 'operatingIncome')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
+                    <th>{t(language, 'netIncome')} ({manualState.market === 'KR' ? '억' : 'M'})</th>
                     <th>{t(language, 'eps')}</th>
-                    <th>EBITDA</th>
+                    <th>EBITDA ({manualState.market === 'KR' ? '억' : 'M'})</th>
                   </tr>
                 </thead>
                 <tbody>

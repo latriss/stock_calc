@@ -107,6 +107,15 @@ textarea {
   min-width: 0;
 }
 
+.table-wrap input {
+  width: 100%;
+  min-width: 60px;
+  max-width: 120px;
+  padding: 0.4rem 0.45rem;
+  font-size: 0.8rem;
+  box-sizing: border-box;
+}
+
 .table-wrap input:disabled {
   background: #f3f6f4;
   color: #8ca19a;
@@ -259,15 +268,15 @@ textarea {
 table {
   width: 100%;
   border-collapse: collapse;
-  min-width: 640px;
+  min-width: 420px;
 }
 
 th,
 td {
   border-bottom: 1px solid #e2ece8;
-  padding: 0.55rem 0.45rem;
+  padding: 0.45rem 0.35rem;
   text-align: left;
-  font-size: 0.84rem;
+  font-size: 0.78rem;
   white-space: nowrap;
 }
 
@@ -314,6 +323,36 @@ th {
   margin-top: 0.75rem;
   display: flex;
   gap: 0.55rem;
+}
+
+@media (max-width: 480px) {
+  .app-shell {
+    padding: 0.8rem 0.5rem 1.5rem;
+  }
+
+  .search-card,
+  .panel {
+    padding: 0.65rem;
+    border-radius: 0.75rem;
+  }
+
+  .table-wrap {
+    margin: 0 -0.65rem;
+    padding: 0 0.65rem;
+  }
+
+  table {
+    min-width: 360px;
+  }
+
+  .metric-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .metric-card {
+    padding: 0.5rem;
+  }
 }
 
 @media (min-width: 860px) {
