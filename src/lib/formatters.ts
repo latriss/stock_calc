@@ -9,6 +9,20 @@ function getLocale(language: Language): string {
   return localeByLanguage[language]
 }
 
+function getDisplayTimeZone(language: Language): { timeZone: string; label: string } {
+  if (language === 'ko') {
+    return {
+      timeZone: 'Asia/Seoul',
+      label: 'KST',
+    }
+  }
+
+  return {
+    timeZone: 'America/New_York',
+    label: 'ET',
+  }
+}
+
 export function formatNumber(value: number | null | undefined, language: Language, maximumFractionDigits = 2): string {
   if (value === null || value === undefined || Number.isNaN(value)) {
     return 'N/A'
@@ -134,17 +148,32 @@ export function formatDataTimestamp(value: string | null | undefined, language: 
     return value
   }
 
-  const year = parsed.getFullYear()
-  const month = String(parsed.getMonth() + 1).padStart(2, '0')
-  const day = String(parsed.getDate()).padStart(2, '0')
-  const hour = String(parsed.getHours()).padStart(2, '0')
-  const minute = String(parsed.getMinutes()).padStart(2, '0')
+  const { timeZone, label } = getDisplayTimeZone(language)
+  const parts = new Intl.DateTimeFormat(getLocale(language), {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).formatToParts(parsed)
 
-  if (language === 'ko') {
-    return `${year}년 ${month}월 ${day}일 ${hour}:${minute}`
+  const year = parts.find((part) => part.type === 'year')?.value
+  const month = parts.find((part) => part.type === 'month')?.value
+  const day = parts.find((part) => part.type === 'day')?.value
+  const hour = parts.find((part) => part.type === 'hour')?.value
+  const minute = parts.find((part) => part.type === 'minute')?.value
+
+  if (!year || !month || !day || !hour || !minute) {
+    return value
   }
 
-  return `${year}-${month}-${day} ${hour}:${minute}`
+  if (language === 'ko') {
+    return `${year}년 ${month}월 ${day}일 ${hour}:${minute} (${label})`
+  }
+
+  return `${year}-${month}-${day} ${hour}:${minute} (${label})`
 }
 
 export function inferMarketFromSymbol(symbol: string): Market {
