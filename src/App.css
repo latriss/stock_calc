@@ -339,6 +339,11 @@ th {
   font-weight: 600;
 }
 
+.link-button-inline {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
 .button-row {
   margin-top: 0.75rem;
   display: flex;

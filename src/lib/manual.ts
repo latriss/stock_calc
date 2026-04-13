@@ -79,6 +79,64 @@ export function populateManualQuarters(
   })
 }
 
+function calculateNetIncomeRatio(quarter: ManualInputState['quarters'][number]): number | null {
+  const operatingIncome = parseOptionalNumber(quarter.operatingIncome)
+  const netIncome = parseOptionalNumber(quarter.netIncome)
+
+  if (operatingIncome === null || netIncome === null || operatingIncome === 0) {
+    return null
+  }
+
+  return netIncome / operatingIncome
+}
+
+export function estimateMissingNetIncome(
+  quarters: ManualInputState['quarters'],
+): ManualInputState['quarters'] {
+  const ratioEntries = quarters
+    .map((quarter, index) => ({
+      index,
+      year: quarter.year,
+      quarter: quarter.quarter,
+      ratio: calculateNetIncomeRatio(quarter),
+    }))
+    .filter(
+      (entry): entry is { index: number; year: number; quarter: 1 | 2 | 3 | 4; ratio: number } =>
+        entry.ratio !== null,
+    )
+
+  if (ratioEntries.length === 0) {
+    return quarters
+  }
+
+  const averageRatio = ratioEntries.reduce((sum, entry) => sum + entry.ratio, 0) / ratioEntries.length
+
+  return quarters.map((quarter, index) => {
+    if (parseOptionalNumber(quarter.netIncome) !== null) {
+      return quarter
+    }
+
+    const operatingIncome = parseOptionalNumber(quarter.operatingIncome)
+    if (operatingIncome === null || operatingIncome === 0) {
+      return quarter
+    }
+
+    const sameQuarterRatio = ratioEntries
+      .filter((entry) => entry.index !== index && entry.quarter === quarter.quarter)
+      .sort((a, b) => Math.abs(a.year - quarter.year) - Math.abs(b.year - quarter.year))[0]?.ratio
+
+    const ratio = sameQuarterRatio ?? averageRatio
+    if (!Number.isFinite(ratio)) {
+      return quarter
+    }
+
+    return {
+      ...quarter,
+      netIncome: formatInputNumberString(String(Math.round(operatingIncome * ratio))),
+    }
+  })
+}
+
 export function manualToQuarterRecords(state: ManualInputState): QuarterRecord[] {
   const m = unitMultiplier(state.market)
   const shares = scaleUp(state.shares, m)

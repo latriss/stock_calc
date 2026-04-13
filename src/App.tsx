@@ -22,6 +22,7 @@ import {
 } from './lib/formatters'
 import {
   createInitialManualState,
+  estimateMissingNetIncome,
   manualToQuarterRecords,
   manualToValuationInputs,
   populateManualQuarters,
@@ -216,6 +217,14 @@ function App() {
 
   function resetManual(): void {
     setManualState(createInitialManualState(currentYear))
+    setManualOutput(null)
+  }
+
+  function estimateManualNetIncome(): void {
+    setManualState((prev) => ({
+      ...prev,
+      quarters: estimateMissingNetIncome(prev.quarters),
+    }))
     setManualOutput(null)
   }
 
@@ -512,7 +521,13 @@ function App() {
           </article>
 
           <article className="panel">
-            <h2>{t(language, 'sectionManualQuarter')}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.75rem' }}>
+              <h2>{t(language, 'sectionManualQuarter')}</h2>
+              <button type="button" className="link-button link-button-inline" onClick={estimateManualNetIncome}>
+                {t(language, 'estimateNetIncome')}
+              </button>
+            </div>
+            <p className="hint-text">{t(language, 'estimateNetIncomeHelp')}</p>
             <div className="table-wrap">
               <table>
                 <thead>

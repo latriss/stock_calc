@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { QuarterRecord } from '../types'
-import { createInitialManualState, manualToQuarterRecords, populateManualQuarters } from './manual'
+import {
+  createInitialManualState,
+  estimateMissingNetIncome,
+  manualToQuarterRecords,
+  populateManualQuarters,
+} from './manual'
 
 const sourceQuarters: QuarterRecord[] = [
   {
@@ -105,5 +110,37 @@ describe('manual input helpers', () => {
 
     expect(firstQuarter.eps).toBe(100)
     expect(firstQuarter.ebitda).toBe(10_000_000_000)
+  })
+
+  it('estimates only blank net income rows using same-quarter history first', () => {
+    const state = createInitialManualState(2026)
+    state.quarters[0].operatingIncome = '100'
+    state.quarters[0].netIncome = '80'
+    state.quarters[1].operatingIncome = '120'
+    state.quarters[1].netIncome = '90'
+    state.quarters[4].operatingIncome = '200'
+    state.quarters[5].operatingIncome = '160'
+    state.quarters[6].operatingIncome = '100'
+    state.quarters[6].netIncome = '40'
+
+    const estimated = estimateMissingNetIncome(state.quarters)
+
+    expect(estimated[0].netIncome).toBe('80')
+    expect(estimated[4].netIncome).toBe('160')
+    expect(estimated[5].netIncome).toBe('120')
+    expect(estimated[6].netIncome).toBe('40')
+  })
+
+  it('falls back to average ratio when same-quarter history is unavailable', () => {
+    const state = createInitialManualState(2026)
+    state.quarters[0].operatingIncome = '100'
+    state.quarters[0].netIncome = '80'
+    state.quarters[1].operatingIncome = '120'
+    state.quarters[1].netIncome = '60'
+    state.quarters[6].operatingIncome = '100'
+
+    const estimated = estimateMissingNetIncome(state.quarters)
+
+    expect(estimated[6].netIncome).toBe('65')
   })
 })
