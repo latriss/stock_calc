@@ -11,7 +11,13 @@ function scaleUp(input: string, multiplier: number): number | null {
   return v !== null ? v * multiplier : null
 }
 
-export function createInitialManualState(referenceYear = new Date().getFullYear()): ManualInputState {
+function scaleDown(value: number | null | undefined, multiplier: number): string {
+  return value !== null && value !== undefined && Number.isFinite(value)
+    ? String(Math.round(value / multiplier))
+    : ''
+}
+
+function createQuarterInputGrid(referenceYear: number): ManualInputState['quarters'] {
   const years = [referenceYear - 1, referenceYear]
   const quarters: ManualInputState['quarters'] = []
 
@@ -29,6 +35,12 @@ export function createInitialManualState(referenceYear = new Date().getFullYear(
     }
   }
 
+  return quarters
+}
+
+export function createInitialManualState(referenceYear = new Date().getFullYear()): ManualInputState {
+  const quarters = createQuarterInputGrid(referenceYear)
+
   return {
     price: '',
     marketCap: '',
@@ -40,6 +52,33 @@ export function createInitialManualState(referenceYear = new Date().getFullYear(
     market: 'KR',
     quarters,
   }
+}
+
+export function populateManualQuarters(
+  sourceQuarters: QuarterRecord[],
+  market: Market,
+  referenceYear = new Date().getFullYear(),
+): ManualInputState['quarters'] {
+  const multiplier = unitMultiplier(market)
+  const sourceMap = new Map(
+    sourceQuarters.map((quarter) => [`${quarter.year}-Q${quarter.quarter}`, quarter] as const),
+  )
+
+  return createQuarterInputGrid(referenceYear).map((quarter) => {
+    const source = sourceMap.get(`${quarter.year}-Q${quarter.quarter}`)
+    if (!source) {
+      return quarter
+    }
+
+    return {
+      ...quarter,
+      revenue: scaleDown(source.revenue, multiplier),
+      operatingIncome: scaleDown(source.operatingIncome, multiplier),
+      netIncome: scaleDown(source.netIncome, multiplier),
+      eps: source.eps !== null && Number.isFinite(source.eps) ? String(source.eps) : '',
+      ebitda: scaleDown(source.ebitda, multiplier),
+    }
+  })
 }
 
 export function manualToQuarterRecords(state: ManualInputState): QuarterRecord[] {
@@ -68,4 +107,3 @@ export function manualToValuationInputs(state: ManualInputState): ValuationInput
     cash: scaleUp(state.cash, m),
   }
 }
-

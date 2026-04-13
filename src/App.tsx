@@ -18,7 +18,12 @@ import {
   formatNumber,
   formatPlain,
 } from './lib/formatters'
-import { createInitialManualState, manualToQuarterRecords, manualToValuationInputs } from './lib/manual'
+import {
+  createInitialManualState,
+  manualToQuarterRecords,
+  manualToValuationInputs,
+  populateManualQuarters,
+} from './lib/manual'
 import { fetchStockDetail, loadMeta, searchStocks } from './lib/staticData'
 import type {
   CalculatedMetrics,
@@ -167,19 +172,11 @@ function App() {
         : ''
 
     const vi = stockDetail.valuationInputs
-    const recentQuarters = stockDetail.quarters.slice(-8)
-
-    const quarters = recentQuarters.map((q) => ({
-      year: q.year,
-      quarter: q.quarter as 1 | 2 | 3 | 4,
-      revenue: toUnit(q.revenue),
-      operatingIncome: toUnit(q.operatingIncome),
-      netIncome: toUnit(q.netIncome),
-      eps: numToStr(q.eps),
-      ebitda: toUnit(q.ebitda),
-    }))
+    const quarters = populateManualQuarters(stockDetail.quarters, market, currentYear)
+    const baseState = createInitialManualState(currentYear)
 
     setManualState({
+      ...baseState,
       price: numToStr(vi.price),
       marketCap: toUnit(vi.marketCap),
       shares: toUnit(vi.shares),
@@ -190,6 +187,7 @@ function App() {
       market,
       quarters,
     })
+    setManualOutput(null)
     setMode('manual')
   }
 
@@ -213,7 +211,7 @@ function App() {
   }
 
   function resetManual(): void {
-    setManualState(createInitialManualState())
+    setManualState(createInitialManualState(currentYear))
     setManualOutput(null)
   }
 
